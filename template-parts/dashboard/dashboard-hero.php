@@ -22,7 +22,7 @@ if ( empty( $dashboard ) ) {
 				<?php esc_html_e( 'Accueil', 'crades-theme' ); ?>
 			</a>
 			<span class="mx-2">/</span>
-			<a class="hover:text-white" href="<?php echo esc_url( home_url( '/tableaux-de-bord/' ) ); ?>">
+			<a class="hover:text-white" href="<?php echo esc_url( crades_get_page_url( 'tableaux-de-bord' ) ); ?>">
 				<?php esc_html_e( 'Tableaux de bord', 'crades-theme' ); ?>
 			</a>
 			<span class="mx-2">/</span>

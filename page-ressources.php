@@ -35,10 +35,10 @@ get_header();
 				<?php esc_html_e( "Nous préparons une nouvelle bibliothèque de documents, de liens utiles et d'accès rapides pour centraliser les contenus CRADES.", 'crades-theme' ); ?>
 			</p>
 			<div class="mt-8 flex flex-wrap justify-center gap-3">
-				<a href="<?php echo esc_url( home_url( '/publications/' ) ); ?>" class="inline-flex items-center rounded-full bg-brand-blue px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-navy transition-colors">
+				<a href="<?php echo esc_url( crades_get_page_url( 'publications' ) ); ?>" class="inline-flex items-center rounded-full bg-brand-blue px-5 py-2.5 text-sm font-semibold text-white hover:bg-brand-navy transition-colors">
 					<?php esc_html_e( 'Aller aux publications', 'crades-theme' ); ?>
 				</a>
-				<a href="<?php echo esc_url( home_url( '/tableaux-de-bord/' ) ); ?>" class="inline-flex items-center rounded-full border border-gray-200 px-5 py-2.5 text-sm font-semibold text-gray-700 hover:border-brand-blue hover:text-brand-blue transition-colors">
+				<a href="<?php echo esc_url( crades_get_page_url( 'tableaux-de-bord' ) ); ?>" class="inline-flex items-center rounded-full border border-gray-200 px-5 py-2.5 text-sm font-semibold text-gray-700 hover:border-brand-blue hover:text-brand-blue transition-colors">
 					<?php esc_html_e( 'Voir les tableaux de bord', 'crades-theme' ); ?>
 				</a>
 			</div>

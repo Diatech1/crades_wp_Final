@@ -71,7 +71,7 @@ $dashboards = array(
 		'icon'      => 'fa-globe',
 		'icon_bg'   => 'bg-brand-blue/10',
 		'icon_text' => 'text-brand-blue',
-		'href'      => home_url( '/commerce-exterieur/' ),
+		'href'      => crades_get_page_url( 'commerce-exterieur' ),
 	),
 	array(
 		'title'     => 'Commerce intérieur',
@@ -79,7 +79,7 @@ $dashboards = array(
 		'icon'      => 'fa-store',
 		'icon_bg'   => 'bg-brand-gold/10',
 		'icon_text' => 'text-brand-gold',
-		'href'      => home_url( '/commerce-interieur/' ),
+		'href'      => crades_get_page_url( 'commerce-interieur' ),
 	),
 	array(
 		'title'     => 'Industrie',
@@ -87,7 +87,7 @@ $dashboards = array(
 		'icon'      => 'fa-industry',
 		'icon_bg'   => 'bg-brand-sky/10',
 		'icon_text' => 'text-sky-500',
-		'href'      => home_url( '/industrie/' ),
+		'href'      => crades_get_page_url( 'industrie' ),
 	),
 	array(
 		'title'     => 'PME / PMI',
@@ -95,27 +95,27 @@ $dashboards = array(
 		'icon'      => 'fa-building',
 		'icon_bg'   => 'bg-brand-navy/10',
 		'icon_text' => 'text-brand-navy',
-		'href'      => home_url( '/pme-pmi/' ),
+		'href'      => crades_get_page_url( 'pme-pmi' ),
 	),
 );
 
 $kpis = array(
-	array( 'value' => $format_number( $overview['totalExports'] ), 'unit' => 'Mds FCFA', 'label' => 'Exportations', 'href' => home_url( '/commerce-exterieur/' ) ),
-	array( 'value' => $format_number( $overview['totalImports'] ), 'unit' => 'Mds FCFA', 'label' => 'Importations', 'href' => home_url( '/commerce-exterieur/' ) ),
-	array( 'value' => $format_number( $overview['tradeBalance'] ), 'unit' => 'Mds FCFA', 'label' => 'Balance commerciale', 'href' => home_url( '/commerce-exterieur/' ) ),
-	array( 'value' => str_replace( '.', ',', number_format( $coverage_rate, 1, '.', '' ) ), 'unit' => '%', 'label' => 'Taux de couverture', 'href' => home_url( '/commerce-exterieur/' ) ),
-	array( 'value' => ! empty( $ihpc_indicator['formatted'] ) ? $ihpc_indicator['formatted'] : 'n/a', 'unit' => '', 'label' => 'Indice Prix Consommation', 'href' => home_url( '/commerce-interieur/' ) ),
-	array( 'value' => $latest_inflation ? str_replace( '.', ',', number_format( (float) $latest_inflation['rate'], 1, '.', '' ) ) . ' %' : 'n/a', 'unit' => '', 'label' => 'Inflation annuelle', 'href' => home_url( '/commerce-interieur/' ) ),
-	array( 'value' => isset( $pme_data['exportatrices'] ) ? $pme_data['exportatrices'] : 'n/a', 'unit' => '', 'label' => 'Entreprises exportatrices', 'href' => home_url( '/pme-pmi/' ) ),
-	array( 'value' => ! empty( $commerce_pib['formatted'] ) ? $commerce_pib['formatted'] : 'n/a', 'unit' => '', 'label' => 'Commerce / PIB', 'href' => home_url( '/commerce-interieur/' ) ),
-	array( 'value' => $compact_metric( isset( $ihpi_indicator['value'] ) ? $ihpi_indicator['value'] : null ), 'unit' => '', 'label' => 'IHPI - Production', 'href' => home_url( '/industrie/' ) ),
-	array( 'value' => $compact_metric( isset( $icai_indicator['value'] ) ? $icai_indicator['value'] : null ), 'unit' => '', 'label' => 'ICAI - Industrie', 'href' => home_url( '/industrie/' ) ),
-	array( 'value' => $compact_metric( isset( $ippi_indicator['value'] ) ? $ippi_indicator['value'] : null ), 'unit' => '', 'label' => 'IPPI - Prix Production', 'href' => home_url( '/industrie/' ) ),
-	array( 'value' => $compact_metric( isset( $cip_indicator['value'] ) ? $cip_indicator['value'] : null ), 'unit' => '', 'label' => 'CIP - Compétitivité', 'href' => home_url( '/industrie/' ) ),
-	array( 'value' => $latest_tucp, 'unit' => '', 'label' => "Taux d'utilisation des capacités", 'href' => home_url( '/industrie/' ) ),
-	array( 'value' => number_format_i18n( (int) $pme_data['immatriculations'], 0 ), 'unit' => '', 'label' => 'Immatriculations 2024', 'href' => home_url( '/pme-pmi/' ) ),
-	array( 'value' => isset( $pme_data['creditAccess'] ) ? $pme_data['creditAccess'] : 'n/a', 'unit' => '', 'label' => 'Accès au crédit', 'href' => home_url( '/pme-pmi/' ) ),
-	array( 'value' => isset( $pme_data['croissanceEmploi'] ) ? $pme_data['croissanceEmploi'] : 'n/a', 'unit' => '', 'label' => "Croissance de l'emploi", 'href' => home_url( '/pme-pmi/' ) ),
+	array( 'value' => $format_number( $overview['totalExports'] ), 'unit' => 'Mds FCFA', 'label' => 'Exportations', 'href' => crades_get_page_url( 'commerce-exterieur' ) ),
+	array( 'value' => $format_number( $overview['totalImports'] ), 'unit' => 'Mds FCFA', 'label' => 'Importations', 'href' => crades_get_page_url( 'commerce-exterieur' ) ),
+	array( 'value' => $format_number( $overview['tradeBalance'] ), 'unit' => 'Mds FCFA', 'label' => 'Balance commerciale', 'href' => crades_get_page_url( 'commerce-exterieur' ) ),
+	array( 'value' => str_replace( '.', ',', number_format( $coverage_rate, 1, '.', '' ) ), 'unit' => '%', 'label' => 'Taux de couverture', 'href' => crades_get_page_url( 'commerce-exterieur' ) ),
+	array( 'value' => ! empty( $ihpc_indicator['formatted'] ) ? $ihpc_indicator['formatted'] : 'n/a', 'unit' => '', 'label' => 'Indice Prix Consommation', 'href' => crades_get_page_url( 'commerce-interieur' ) ),
+	array( 'value' => $latest_inflation ? str_replace( '.', ',', number_format( (float) $latest_inflation['rate'], 1, '.', '' ) ) . ' %' : 'n/a', 'unit' => '', 'label' => 'Inflation annuelle', 'href' => crades_get_page_url( 'commerce-interieur' ) ),
+	array( 'value' => isset( $pme_data['exportatrices'] ) ? $pme_data['exportatrices'] : 'n/a', 'unit' => '', 'label' => 'Entreprises exportatrices', 'href' => crades_get_page_url( 'pme-pmi' ) ),
+	array( 'value' => ! empty( $commerce_pib['formatted'] ) ? $commerce_pib['formatted'] : 'n/a', 'unit' => '', 'label' => 'Commerce / PIB', 'href' => crades_get_page_url( 'commerce-interieur' ) ),
+	array( 'value' => $compact_metric( isset( $ihpi_indicator['value'] ) ? $ihpi_indicator['value'] : null ), 'unit' => '', 'label' => 'IHPI - Production', 'href' => crades_get_page_url( 'industrie' ) ),
+	array( 'value' => $compact_metric( isset( $icai_indicator['value'] ) ? $icai_indicator['value'] : null ), 'unit' => '', 'label' => 'ICAI - Industrie', 'href' => crades_get_page_url( 'industrie' ) ),
+	array( 'value' => $compact_metric( isset( $ippi_indicator['value'] ) ? $ippi_indicator['value'] : null ), 'unit' => '', 'label' => 'IPPI - Prix Production', 'href' => crades_get_page_url( 'industrie' ) ),
+	array( 'value' => $compact_metric( isset( $cip_indicator['value'] ) ? $cip_indicator['value'] : null ), 'unit' => '', 'label' => 'CIP - Compétitivité', 'href' => crades_get_page_url( 'industrie' ) ),
+	array( 'value' => $latest_tucp, 'unit' => '', 'label' => "Taux d'utilisation des capacités", 'href' => crades_get_page_url( 'industrie' ) ),
+	array( 'value' => number_format_i18n( (int) $pme_data['immatriculations'], 0 ), 'unit' => '', 'label' => 'Immatriculations 2024', 'href' => crades_get_page_url( 'pme-pmi' ) ),
+	array( 'value' => isset( $pme_data['creditAccess'] ) ? $pme_data['creditAccess'] : 'n/a', 'unit' => '', 'label' => 'Accès au crédit', 'href' => crades_get_page_url( 'pme-pmi' ) ),
+	array( 'value' => isset( $pme_data['croissanceEmploi'] ) ? $pme_data['croissanceEmploi'] : 'n/a', 'unit' => '', 'label' => "Croissance de l'emploi", 'href' => crades_get_page_url( 'pme-pmi' ) ),
 );
 
 $publications = array(
@@ -166,10 +166,10 @@ $palette      = array(
 				Le CRADES produit et diffuse les statistiques, études et analyses stratégiques sur l'industrie et le commerce du Sénégal.
 			</p>
 			<div class="flex flex-wrap gap-4 mt-10">
-				<a href="<?php echo esc_url( home_url( '/commerce-exterieur/' ) ); ?>" class="inline-flex items-center text-sm font-medium bg-brand-blue text-white px-5 py-2.5 rounded-lg hover:bg-brand-navy transition-colors shadow-sm">
+				<a href="<?php echo esc_url( crades_get_page_url( 'commerce-exterieur' ) ); ?>" class="inline-flex items-center text-sm font-medium bg-brand-blue text-white px-5 py-2.5 rounded-lg hover:bg-brand-navy transition-colors shadow-sm">
 					<?php esc_html_e( 'Explorer les tableaux de bord', 'crades-theme' ); ?>
 				</a>
-				<a href="<?php echo esc_url( home_url( '/publications/' ) ); ?>" class="inline-flex items-center text-sm font-medium bg-white text-brand-navy px-5 py-2.5 rounded-lg hover:bg-white/80 transition-colors border border-brand-ice shadow-sm">
+				<a href="<?php echo esc_url( crades_get_page_url( 'publications' ) ); ?>" class="inline-flex items-center text-sm font-medium bg-white text-brand-navy px-5 py-2.5 rounded-lg hover:bg-white/80 transition-colors border border-brand-ice shadow-sm">
 					<?php esc_html_e( 'Publications', 'crades-theme' ); ?>
 				</a>
 			</div>
@@ -219,7 +219,7 @@ $palette      = array(
 	<div class="max-w-6xl mx-auto px-4 sm:px-6">
 		<div class="flex items-center justify-between mb-10">
 			<h2 class="font-display text-xl text-gray-800"><?php esc_html_e( 'Dernières publications', 'crades-theme' ); ?></h2>
-			<a href="<?php echo esc_url( home_url( '/publications/' ) ); ?>" class="text-xs text-brand-blue font-medium hover:underline"><?php esc_html_e( 'Voir toutes', 'crades-theme' ); ?> &rarr;</a>
+			<a href="<?php echo esc_url( crades_get_page_url( 'publications' ) ); ?>" class="text-xs text-brand-blue font-medium hover:underline"><?php esc_html_e( 'Voir toutes', 'crades-theme' ); ?> &rarr;</a>
 		</div>
 		<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
 			<?php foreach ( $publications as $publication ) : ?>
@@ -284,7 +284,7 @@ $palette      = array(
 			<p class="text-sm text-gray-500 leading-relaxed">
 				<?php esc_html_e( "Le CRADES est une institution rattachée au Ministère de l'Industrie et du Commerce du Sénégal. Il est chargé de la production, de l'analyse et de la diffusion des données statistiques sur le commerce extérieur, le commerce intérieur, l'industrie et les PME/PMI.", 'crades-theme' ); ?>
 			</p>
-			<a href="<?php echo esc_url( home_url( '/a-propos/' ) ); ?>" class="inline-block mt-6 text-sm text-brand-blue font-medium hover:underline"><?php esc_html_e( 'En savoir plus', 'crades-theme' ); ?> &rarr;</a>
+			<a href="<?php echo esc_url( crades_get_page_url( 'a-propos' ) ); ?>" class="inline-block mt-6 text-sm text-brand-blue font-medium hover:underline"><?php esc_html_e( 'En savoir plus', 'crades-theme' ); ?> &rarr;</a>
 		</div>
 	</div>
 </section>

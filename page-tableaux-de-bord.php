@@ -14,25 +14,25 @@ get_header();
 $dashboards = array(
 	array(
 		'title'    => __( 'Commerce extérieur', 'crades-theme' ),
-		'href'     => home_url( '/commerce-exterieur/' ),
+		'href'     => crades_get_page_url( 'commerce-exterieur' ),
 		'canvas'   => 'dashboard-chart-commerce-exterieur',
 		'api_url'  => rest_url( 'ministere/v1/commerce-exterieur' ),
 	),
 	array(
 		'title'    => __( 'Commerce intérieur', 'crades-theme' ),
-		'href'     => home_url( '/commerce-interieur/' ),
+		'href'     => crades_get_page_url( 'commerce-interieur' ),
 		'canvas'   => 'dashboard-chart-commerce-interieur',
 		'api_url'  => rest_url( 'ministere/v1/commerce-interieur' ),
 	),
 	array(
 		'title'    => __( 'Industrie', 'crades-theme' ),
-		'href'     => home_url( '/industrie/' ),
+		'href'     => crades_get_page_url( 'industrie' ),
 		'canvas'   => 'dashboard-chart-industrie',
 		'api_url'  => rest_url( 'ministere/v1/industrie' ),
 	),
 	array(
 		'title'    => __( 'PME / PMI', 'crades-theme' ),
-		'href'     => home_url( '/pme-pmi/' ),
+		'href'     => crades_get_page_url( 'pme-pmi' ),
 		'canvas'   => 'dashboard-chart-pme',
 		'api_url'  => rest_url( 'ministere/v1/pme-pmi' ),
 	),
