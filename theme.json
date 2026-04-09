@@ -1,0 +1,52 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/theme.json",
+	"version": 3,
+	"settings": {
+		"appearanceTools": false,
+		"layout": {
+			"contentSize": "760px",
+			"wideSize": "1200px"
+		},
+		"color": {
+			"custom": false,
+			"palette": [
+				{
+					"slug": "brand-navy",
+					"name": "Brand Navy",
+					"color": "#032d6b"
+				},
+				{
+					"slug": "brand-blue",
+					"name": "Brand Blue",
+					"color": "#044bad"
+				},
+				{
+					"slug": "brand-sky",
+					"name": "Brand Sky",
+					"color": "#3a7fd4"
+				},
+				{
+					"slug": "brand-gold",
+					"name": "Brand Gold",
+					"color": "#b8943e"
+				},
+				{
+					"slug": "brand-frost",
+					"name": "Brand Frost",
+					"color": "#eef4fb"
+				}
+			]
+		},
+		"typography": {
+			"customFontSize": false,
+			"fluid": false,
+			"fontFamilies": [
+				{
+					"slug": "montserrat",
+					"name": "Montserrat",
+					"fontFamily": "\"Montserrat\", sans-serif"
+				}
+			]
+		}
+	}
+}

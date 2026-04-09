@@ -1,0 +1,33 @@
+/*
+Theme Name: CRADES Classic
+Theme URI: https://crades.sn
+Author: OpenAI
+Author URI: https://openai.com
+Description: Classic custom WordPress theme scaffold for CRADES. Built for Elementor compatibility without using block templates or Full Site Editing.
+Version: 0.1.0
+Requires at least: 6.5
+Tested up to: 6.8
+Requires PHP: 8.1
+Text Domain: crades-theme
+License: GPL-2.0-or-later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
+Tags: custom-theme, one-column, two-columns, custom-logo, custom-menu, featured-images, elementor-friendly
+*/
+
+/* Base file required by WordPress.
+ * Core front-end styles are loaded from assets/css/app.css.
+ */
+
+html {
+	box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: inherit;
+}
+
+body {
+	margin: 0;
+}

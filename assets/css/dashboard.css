@@ -1,0 +1,51 @@
+.dashboard-filter-chip {
+	border-width: 1px;
+	border-style: solid;
+	border-radius: 9999px;
+	cursor: pointer;
+	font-size: 0.75rem;
+	font-weight: 600;
+	line-height: 1;
+	padding: 0.75rem 1rem;
+	transition: all 0.2s ease;
+}
+
+.dashboard-kpi-card {
+	transform: translateY(8px);
+	opacity: 0.85;
+}
+
+.dashboard-kpi-card.is-ready {
+	opacity: 1;
+	transform: translateY(0);
+}
+
+.dashboard-chart-stage canvas.hidden {
+	display: none !important;
+}
+
+.dashboard-chart-shimmer {
+	background: linear-gradient(
+		90deg,
+		rgba(226, 232, 240, 0.8) 0%,
+		rgba(241, 245, 249, 1) 50%,
+		rgba(226, 232, 240, 0.8) 100%
+	);
+	background-size: 200% 100%;
+	animation: cradesDashboardShimmer 1.5s linear infinite;
+}
+
+@keyframes cradesDashboardShimmer {
+	from {
+		background-position: 200% 0;
+	}
+	to {
+		background-position: -200% 0;
+	}
+}
+
+@media (max-width: 640px) {
+	.dashboard-filter-chip {
+		width: 100%;
+	}
+}

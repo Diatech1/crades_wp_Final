@@ -1,0 +1,454 @@
+:root {
+	--crades-brand-navy: #032d6b;
+	--crades-brand-blue: #044bad;
+	--crades-brand-sky: #3a7fd4;
+	--crades-brand-gold: #b8943e;
+	--crades-brand-frost: #eef4fb;
+	--crades-border: #e2e8f0;
+	--crades-text: #475569;
+	--crades-heading: #0f172a;
+}
+
+html {
+	scroll-behavior: smooth;
+}
+
+body {
+	color: var(--crades-text);
+	font-family: 'Montserrat', system-ui, sans-serif;
+}
+
+.crades-utility-strip {
+	background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+	position: relative;
+}
+
+.crades-utility-strip::after {
+	background: linear-gradient(90deg, rgba(4, 75, 173, 0) 0%, rgba(4, 75, 173, 0.08) 50%, rgba(4, 75, 173, 0) 100%);
+	bottom: 0;
+	content: '';
+	height: 1px;
+	left: 50%;
+	max-width: 22rem;
+	position: absolute;
+	transform: translateX(-50%);
+	width: 100%;
+}
+
+.crades-utility-strip__logo,
+.crades-site-brand__logo,
+.crades-site-footer__logo {
+	display: block;
+}
+
+.crades-site-header {
+	background: rgba(255, 255, 255, 0.96);
+	backdrop-filter: blur(16px);
+	box-shadow: 0 1px 0 rgba(226, 232, 240, 0.85);
+}
+
+.crades-site-header__inner {
+	column-gap: 1.5rem;
+}
+
+.crades-site-brand {
+	flex-shrink: 0;
+}
+
+.crades-site-nav > a,
+.crades-dashboard-menu > a {
+	letter-spacing: -0.01em;
+	line-height: 1;
+}
+
+.crades-dashboard-dropdown > div {
+	border-radius: 1rem;
+	box-shadow: 0 22px 55px rgba(15, 23, 42, 0.12);
+	overflow: hidden;
+}
+
+.crades-dashboard-dropdown a {
+	align-items: center;
+	display: flex;
+	min-height: 2.5rem;
+}
+
+.crades-header-actions {
+	flex-shrink: 0;
+}
+
+.crades-language-switch {
+	background: rgba(255, 255, 255, 0.94);
+	box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+}
+
+.crades-language-switch a {
+	align-items: center;
+	display: inline-flex;
+	justify-content: center;
+	min-width: 1.75rem;
+}
+
+.crades-mobile-panel {
+	display: flex;
+	flex-direction: column;
+	opacity: 0;
+	transform: translateY(-0.75rem);
+	transition: opacity 0.22s ease, transform 0.22s ease;
+	box-shadow: 0 24px 80px rgba(15, 23, 42, 0.16);
+}
+
+.crades-mobile-panel.is-open {
+	opacity: 1;
+	transform: translateY(0);
+}
+
+.crades-mobile-panel__header {
+	background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+	flex-shrink: 0;
+}
+
+.crades-mobile-panel__brand {
+	align-items: center;
+}
+
+.crades-mobile-panel__logo {
+	display: block;
+	max-height: 4.75rem;
+}
+
+.crades-mobile-panel__close {
+	border-radius: 9999px;
+	transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.crades-mobile-panel__close:hover {
+	background: rgba(148, 163, 184, 0.12);
+	color: #475569;
+}
+
+.crades-mobile-panel__nav {
+	flex: 1 1 auto;
+	overflow-y: auto;
+	padding-bottom: 1.5rem;
+}
+
+.crades-mobile-panel__group {
+	border-top: 1px solid rgba(226, 232, 240, 0.8);
+	margin-top: 0.5rem;
+}
+
+.crades-mobile-panel__link,
+.crades-mobile-panel__sublink {
+	transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.crades-mobile-panel__link:hover,
+.crades-mobile-panel__sublink:hover {
+	transform: translateX(2px);
+}
+
+.crades-mobile-panel__sublink {
+	font-size: 0.82rem;
+}
+
+.crades-mobile-panel__language {
+	background: linear-gradient(180deg, rgba(248, 250, 252, 0) 0%, rgba(248, 250, 252, 0.95) 100%);
+	margin-top: 1.25rem;
+	padding-top: 1rem;
+	position: sticky;
+	bottom: 0;
+}
+
+.crades-site-footer {
+	background: #fff;
+}
+
+.crades-site-footer__grid h4 {
+	color: var(--crades-heading);
+	font-size: 0.72rem;
+	letter-spacing: 0.16em;
+}
+
+.crades-site-footer__grid a,
+.crades-site-footer__grid p {
+	transition: color 0.2s ease;
+}
+
+.crades-site-footer__grid a:hover {
+	color: #475569;
+}
+
+.crades-site-footer__bottom {
+	background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+}
+
+.bg-brand-frost {
+	background-color: var(--crades-brand-frost) !important;
+}
+
+.bg-brand-navy {
+	background-color: var(--crades-brand-navy) !important;
+}
+
+.bg-brand-blue {
+	background-color: var(--crades-brand-blue) !important;
+}
+
+.text-brand-navy {
+	color: var(--crades-brand-navy) !important;
+}
+
+.text-brand-blue {
+	color: var(--crades-brand-blue) !important;
+}
+
+.text-brand-gold {
+	color: var(--crades-brand-gold) !important;
+}
+
+.text-brand-ice {
+	color: var(--crades-brand-frost) !important;
+}
+
+.border-brand-ice {
+	border-color: #c7ddf5 !important;
+}
+
+.hover\:bg-brand-navy:hover {
+	background-color: var(--crades-brand-navy) !important;
+}
+
+.hover\:text-brand-blue:hover {
+	color: var(--crades-brand-blue) !important;
+}
+
+a {
+	text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+	font: inherit;
+}
+
+.menu,
+.sub-menu {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+	outline: 2px solid var(--crades-brand-blue);
+	outline-offset: 2px;
+}
+
+.screen-reader-text {
+	clip: rect(1px, 1px, 1px, 1px);
+	clip-path: inset(50%);
+	height: 1px;
+	margin: -1px;
+	overflow: hidden;
+	position: absolute !important;
+	width: 1px;
+	word-wrap: normal !important;
+}
+
+.screen-reader-text:focus {
+	clip: auto !important;
+	clip-path: none;
+	display: block;
+	height: auto;
+	left: 5px;
+	top: 5px;
+	width: auto;
+	z-index: 100000;
+	background: #fff;
+	padding: 0.75rem 1rem;
+	box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+}
+
+.skip-link:focus {
+	left: 1rem;
+	top: 1rem;
+}
+
+.entry-content > * + *,
+.comment-content > * + * {
+	margin-top: 1.25rem;
+}
+
+.entry-content h2,
+.entry-content h3,
+.entry-content h4 {
+	color: var(--crades-heading);
+	font-weight: 700;
+	line-height: 1.2;
+}
+
+.entry-content ul,
+.entry-content ol {
+	padding-left: 1.25rem;
+}
+
+.entry-content img {
+	border-radius: 1rem;
+	height: auto;
+	max-width: 100%;
+}
+
+.line-clamp-2 {
+	display: -webkit-box;
+	overflow: hidden;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+}
+
+.menu-item.is-current > a {
+	color: var(--crades-brand-blue);
+}
+
+.custom-logo-link img {
+	height: auto;
+	max-height: 4rem;
+	width: auto;
+}
+
+.site-main {
+	min-height: 40vh;
+}
+
+.crades-kpi-track {
+	width: max-content;
+	animation: cradesKpiMarquee 36s linear infinite;
+}
+
+.crades-kpi-track:hover {
+	animation-play-state: paused;
+}
+
+@keyframes cradesKpiMarquee {
+	from {
+		transform: translateX(0);
+	}
+	to {
+		transform: translateX(-50%);
+	}
+}
+
+body.admin-bar .sticky {
+	top: 32px;
+}
+
+@media (max-width: 782px) {
+	body.admin-bar .sticky {
+		top: 46px;
+	}
+}
+
+.crades-elementor-page .elementor-section.elementor-section-boxed > .elementor-container {
+	max-width: 1200px;
+}
+
+.crades-elementor-page .elementor-widget-heading .elementor-heading-title {
+	font-family: 'Montserrat', system-ui, sans-serif;
+}
+
+.crades-elementor-shell > .elementor,
+.crades-elementor-shell > .elementor-location-single,
+.crades-elementor-shell > .elementor-location-archive {
+	width: 100%;
+}
+
+.crades-elementor-page .elementor-button {
+	border-radius: 9999px;
+}
+
+.crades-elementor-page .elementor-widget-container,
+.crades-elementor-page .elementor-heading-title,
+.crades-elementor-page .elementor-text-editor {
+	word-break: normal;
+	overflow-wrap: break-word;
+}
+
+body.crades-pdf-modal-open {
+	overflow: hidden;
+}
+
+[data-pdf-modal] {
+	overscroll-behavior: contain;
+}
+
+[data-pdf-thumb-canvas],
+[data-pdf-reader-canvas] {
+	display: block;
+	height: auto;
+	max-width: 100%;
+	width: 100%;
+}
+
+.nav-links,
+.pagination .nav-links {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem;
+	justify-content: center;
+}
+
+.page-numbers {
+	align-items: center;
+	border: 1px solid var(--crades-border);
+	border-radius: 9999px;
+	color: var(--crades-text);
+	display: inline-flex;
+	font-size: 0.875rem;
+	font-weight: 600;
+	justify-content: center;
+	min-height: 2.75rem;
+	min-width: 2.75rem;
+	padding: 0.5rem 1rem;
+	transition: all 0.2s ease;
+}
+
+.page-numbers.current,
+.page-numbers:hover,
+.page-numbers:focus-visible {
+	background: var(--crades-brand-blue);
+	border-color: var(--crades-brand-blue);
+	color: #fff;
+}
+
+@media (max-width: 767px) {
+	.custom-logo-link img {
+		max-height: 3.25rem;
+	}
+
+	.crades-utility-strip__logo {
+		max-height: 3.2rem;
+	}
+
+	.crades-site-header__inner {
+		min-height: 4.5rem;
+	}
+
+	.crades-site-brand__logo {
+		max-height: 3.25rem;
+	}
+
+	.crades-mobile-panel__nav {
+		padding-left: 1rem;
+		padding-right: 1rem;
+	}
+
+	.crades-site-footer__grid {
+		row-gap: 2rem;
+	}
+}
