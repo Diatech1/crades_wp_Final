@@ -9,6 +9,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+if ( ! defined( 'CRADES_THEME_BUILD' ) ) {
+	define( 'CRADES_THEME_BUILD', '2026-04-09-7618381' );
+}
+
 require get_template_directory() . '/inc/helpers.php';
 require get_template_directory() . '/inc/setup.php';
 require get_template_directory() . '/inc/caching.php';

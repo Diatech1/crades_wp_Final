@@ -13,6 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 <head>
 	<meta charset="<?php bloginfo( 'charset' ); ?>">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<!-- CRADES Theme Build: <?php echo esc_html( defined( 'CRADES_THEME_BUILD' ) ? CRADES_THEME_BUILD : 'unknown' ); ?> -->
 	<?php wp_head(); ?>
 </head>
 <body <?php body_class(); ?>>
