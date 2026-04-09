@@ -70,7 +70,7 @@ function crades_get_page_url( $slug ) {
 	}
 
 	if ( $page instanceof WP_Post ) {
-		$cache[ $slug ] = get_permalink( $page );
+		$cache[ $slug ] = add_query_arg( 'page_id', (int) $page->ID, home_url( '/' ) );
 		return $cache[ $slug ];
 	}
 
