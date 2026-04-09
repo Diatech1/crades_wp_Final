@@ -45,6 +45,8 @@ function crades_get_theme_asset_uri( $relative_path ) {
  * @return string
  */
 function crades_get_page_url( $slug ) {
+	global $wp_rewrite;
+
 	static $cache = array();
 
 	$slug = trim( (string) $slug, '/' );
@@ -70,7 +72,19 @@ function crades_get_page_url( $slug ) {
 	}
 
 	if ( $page instanceof WP_Post ) {
+		$permalink = get_permalink( $page );
+
+		if ( is_string( $permalink ) && '' !== $permalink ) {
+			$cache[ $slug ] = $permalink;
+			return $cache[ $slug ];
+		}
+
 		$cache[ $slug ] = add_query_arg( 'page_id', (int) $page->ID, home_url( '/' ) );
+		return $cache[ $slug ];
+	}
+
+	if ( isset( $wp_rewrite ) && method_exists( $wp_rewrite, 'using_index_permalinks' ) && $wp_rewrite->using_index_permalinks() ) {
+		$cache[ $slug ] = home_url( '/index.php/' . $slug . '/' );
 		return $cache[ $slug ];
 	}
 
