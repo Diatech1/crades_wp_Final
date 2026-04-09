@@ -18,7 +18,17 @@ $extract_tables = static function ( $payload ) {
 };
 
 $format_number = static function ( $value, $decimals = 1 ) {
-	return number_format_i18n( (float) $value, $decimals );
+	return str_replace( '.', ',', number_format( (float) $value, $decimals, '.', '' ) );
+};
+
+$format_billions = static function ( $value ) use ( $format_number ) {
+	$number = (float) $value;
+
+	if ( abs( $number ) >= 1000 ) {
+		$number = $number / 1000;
+	}
+
+	return $format_number( $number, 1 );
 };
 
 $compact_metric = static function ( $value ) {
@@ -100,9 +110,9 @@ $dashboards = array(
 );
 
 $kpis = array(
-	array( 'value' => $format_number( $overview['totalExports'] ), 'unit' => 'Mds FCFA', 'label' => 'Exportations', 'href' => crades_get_page_url( 'commerce-exterieur' ) ),
-	array( 'value' => $format_number( $overview['totalImports'] ), 'unit' => 'Mds FCFA', 'label' => 'Importations', 'href' => crades_get_page_url( 'commerce-exterieur' ) ),
-	array( 'value' => $format_number( $overview['tradeBalance'] ), 'unit' => 'Mds FCFA', 'label' => 'Balance commerciale', 'href' => crades_get_page_url( 'commerce-exterieur' ) ),
+	array( 'value' => $format_billions( $overview['totalExports'] ), 'unit' => 'Mds FCFA', 'label' => 'Exportations', 'href' => crades_get_page_url( 'commerce-exterieur' ) ),
+	array( 'value' => $format_billions( $overview['totalImports'] ), 'unit' => 'Mds FCFA', 'label' => 'Importations', 'href' => crades_get_page_url( 'commerce-exterieur' ) ),
+	array( 'value' => $format_billions( $overview['tradeBalance'] ), 'unit' => 'Mds FCFA', 'label' => 'Balance commerciale', 'href' => crades_get_page_url( 'commerce-exterieur' ) ),
 	array( 'value' => str_replace( '.', ',', number_format( $coverage_rate, 1, '.', '' ) ), 'unit' => '%', 'label' => 'Taux de couverture', 'href' => crades_get_page_url( 'commerce-exterieur' ) ),
 	array( 'value' => ! empty( $ihpc_indicator['formatted'] ) ? $ihpc_indicator['formatted'] : 'n/a', 'unit' => '', 'label' => 'Indice Prix Consommation', 'href' => crades_get_page_url( 'commerce-interieur' ) ),
 	array( 'value' => $latest_inflation ? str_replace( '.', ',', number_format( (float) $latest_inflation['rate'], 1, '.', '' ) ) . ' %' : 'n/a', 'unit' => '', 'label' => 'Inflation annuelle', 'href' => crades_get_page_url( 'commerce-interieur' ) ),
