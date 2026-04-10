@@ -175,6 +175,7 @@ function crades_enqueue_assets() {
 	}
 
 	if ( $is_dashboard_hub ) {
+		wp_enqueue_style( 'crades-dashboard' );
 		wp_enqueue_script( 'crades-chartjs' );
 		wp_enqueue_script( 'crades-dashboard-hub' );
 
@@ -216,6 +217,23 @@ function crades_enqueue_assets() {
 	}
 
 	if ( is_front_page() ) {
+		wp_enqueue_style( 'crades-dashboard' );
+		wp_enqueue_script( 'crades-chartjs' );
+		wp_enqueue_script( 'crades-dashboard-hub' );
+
+		wp_localize_script(
+			'crades-dashboard-hub',
+			'cradesDashboardHub',
+			array(
+				'endpoints' => array(
+					'commerceExterieur' => esc_url_raw( rest_url( 'ministere/v1/commerce-exterieur' ) ),
+					'commerceInterieur' => esc_url_raw( rest_url( 'ministere/v1/commerce-interieur' ) ),
+					'industrie'         => esc_url_raw( rest_url( 'ministere/v1/industrie' ) ),
+					'pmePmi'            => esc_url_raw( rest_url( 'ministere/v1/pme-pmi' ) ),
+				),
+			)
+		);
+
 		crades_enqueue_pdf_js();
 		wp_enqueue_script( 'crades-home' );
 

@@ -87,6 +87,7 @@
 		var page = document.querySelector('[data-publications-page]');
 		var chips = Array.prototype.slice.call(document.querySelectorAll('[data-taxonomy-filter]'));
 		var cards = Array.prototype.slice.call(document.querySelectorAll('[data-publication-card]'));
+		var emptyState = document.querySelector('[data-publications-empty]');
 		var thumbs = Array.prototype.slice.call(document.querySelectorAll('[data-pdf-thumb]'));
 		var modal = document.getElementById('pdfModal');
 		var modalViewer = document.getElementById('pdfModalViewer');
@@ -187,12 +188,23 @@
 		}
 
 		function applyFilter(label) {
+			var visibleCount = 0;
+
 			cards.forEach(function (card) {
-				var taxonomy = card.getAttribute('data-taxonomy') || '';
-				var visible = label === 'Toutes' || taxonomy === label;
+				var rawTaxonomy = card.getAttribute('data-taxonomy') || '';
+				var taxonomies = rawTaxonomy ? rawTaxonomy.split('||') : [];
+				var visible = label === 'Toutes' || taxonomies.indexOf(label) !== -1;
 
 				card.classList.toggle('hidden', !visible);
+
+				if (visible) {
+					visibleCount += 1;
+				}
 			});
+
+			if (emptyState) {
+				emptyState.classList.toggle('hidden', visibleCount > 0);
+			}
 
 			setActiveChip(label);
 		}

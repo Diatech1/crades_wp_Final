@@ -235,9 +235,235 @@
 		updateEmptyState();
 	}
 
+	function bootHomeDashboardCarousel() {
+		var carousel = document.querySelector('[data-home-dashboard-carousel]');
+
+		if (!carousel) {
+			return;
+		}
+
+		var track = carousel.querySelector('[data-dashboard-carousel-track]');
+		var slides = Array.prototype.slice.call(carousel.querySelectorAll('[data-dashboard-carousel-slide]'));
+		var prevButton = document.querySelector('[data-dashboard-carousel-prev]');
+		var nextButton = document.querySelector('[data-dashboard-carousel-next]');
+		var originalCount = parseInt(carousel.getAttribute('data-carousel-original-count') || '', 10) || slides.length;
+		var cloneCount = parseInt(carousel.getAttribute('data-carousel-clone-count') || '', 10) || 0;
+		var index = 0;
+		var ticking = false;
+		var autoTimer = null;
+		var resumeTimer = null;
+		var resetTimer = null;
+		var isPaused = false;
+		var autoDelay = 5000;
+
+		if (!track || slides.length < 2) {
+			return;
+		}
+
+		function getVisibleCount() {
+			return window.innerWidth >= 768 ? 2 : 1;
+		}
+
+		function getStepSize() {
+			return 1;
+		}
+
+		function getMaxIndex() {
+			return Math.max(0, originalCount);
+		}
+
+		function canAutoPlay() {
+			return originalCount > getVisibleCount() && !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+		}
+
+		function getLoopedIndex(step) {
+			if (originalCount <= getVisibleCount()) {
+				return 0;
+			}
+
+			if (step > originalCount) {
+				return 0;
+			}
+
+			if (step < 0) {
+				return Math.max(0, originalCount - getStepSize());
+			}
+
+			return step;
+		}
+
+		function updateControls() {
+			var hasMovement = originalCount > getVisibleCount();
+
+			if (prevButton) {
+				prevButton.disabled = !hasMovement;
+			}
+
+			if (nextButton) {
+				nextButton.disabled = !hasMovement;
+			}
+		}
+
+		function jumpToIndex(targetIndex) {
+			track.style.scrollBehavior = 'auto';
+			track.scrollLeft = slides[targetIndex] ? slides[targetIndex].offsetLeft : 0;
+
+			window.requestAnimationFrame(function () {
+				track.style.scrollBehavior = '';
+			});
+		}
+
+		function scheduleLoopReset(targetIndex) {
+			window.clearTimeout(resetTimer);
+			resetTimer = window.setTimeout(function () {
+				index = targetIndex;
+				jumpToIndex(targetIndex);
+				updateControls();
+			}, 450);
+		}
+
+		function scrollToIndex(nextIndex) {
+			var maxIndex = getMaxIndex();
+			index = Math.max(0, Math.min(nextIndex, maxIndex));
+
+			track.scrollTo({
+				left: slides[index].offsetLeft,
+				behavior: 'smooth'
+			});
+
+			if (cloneCount > 0 && index >= originalCount) {
+				scheduleLoopReset(0);
+			}
+
+			updateControls();
+		}
+
+		function stopAutoPlay() {
+			if (autoTimer) {
+				window.clearInterval(autoTimer);
+				autoTimer = null;
+			}
+		}
+
+		function scheduleResume(delay) {
+			window.clearTimeout(resumeTimer);
+			resumeTimer = window.setTimeout(function () {
+				isPaused = false;
+				startAutoPlay();
+			}, delay || 0);
+		}
+
+		function pauseAutoPlay() {
+			isPaused = true;
+			window.clearTimeout(resumeTimer);
+			stopAutoPlay();
+		}
+
+		function startAutoPlay() {
+			if (isPaused || autoTimer || !canAutoPlay()) {
+				return;
+			}
+
+			autoTimer = window.setInterval(function () {
+				scrollToIndex(index + getStepSize());
+			}, autoDelay);
+		}
+
+		function syncIndexFromScroll() {
+			var scrollLeft = track.scrollLeft;
+			var closestIndex = 0;
+			var smallestDelta = Number.POSITIVE_INFINITY;
+
+			slides.forEach(function (slide, slideIndex) {
+				var delta = Math.abs(slide.offsetLeft - scrollLeft);
+
+				if (delta < smallestDelta) {
+					smallestDelta = delta;
+					closestIndex = slideIndex;
+				}
+			});
+
+			index = Math.max(0, Math.min(closestIndex, getMaxIndex()));
+
+			if (cloneCount > 0 && index >= originalCount) {
+				scheduleLoopReset(0);
+			}
+
+			updateControls();
+		}
+
+		if (prevButton) {
+			prevButton.addEventListener('click', function () {
+				pauseAutoPlay();
+				scrollToIndex(getLoopedIndex(index - getStepSize()));
+				scheduleResume(6000);
+			});
+		}
+
+		if (nextButton) {
+			nextButton.addEventListener('click', function () {
+				pauseAutoPlay();
+				scrollToIndex(index + getStepSize());
+				scheduleResume(6000);
+			});
+		}
+
+		track.addEventListener('scroll', function () {
+			if (ticking) {
+				return;
+			}
+
+			ticking = true;
+			window.requestAnimationFrame(function () {
+				syncIndexFromScroll();
+				ticking = false;
+			});
+		});
+
+		carousel.addEventListener('mouseenter', pauseAutoPlay);
+		carousel.addEventListener('mouseleave', function () {
+			scheduleResume(1200);
+		});
+		carousel.addEventListener('focusin', pauseAutoPlay);
+		carousel.addEventListener('focusout', function () {
+			scheduleResume(1200);
+		});
+		carousel.addEventListener('touchstart', pauseAutoPlay, { passive: true });
+		carousel.addEventListener('touchend', function () {
+			scheduleResume(2500);
+		}, { passive: true });
+
+		document.addEventListener('visibilitychange', function () {
+			if (document.hidden) {
+				pauseAutoPlay();
+				return;
+			}
+
+			scheduleResume(800);
+		});
+
+		window.addEventListener('resize', function () {
+			window.clearTimeout(bootHomeDashboardCarousel.resizeTimer);
+			bootHomeDashboardCarousel.resizeTimer = window.setTimeout(function () {
+				var normalizedIndex = index >= originalCount ? 0 : Math.min(index, originalCount - getVisibleCount());
+				index = Math.max(0, normalizedIndex);
+				jumpToIndex(index);
+				updateControls();
+			}, 120);
+		});
+
+		jumpToIndex(0);
+		updateControls();
+		startAutoPlay();
+	}
+
 	if (document.readyState === 'loading') {
-		document.addEventListener('DOMContentLoaded', bootHomePdfGallery, { once: true });
+		document.addEventListener('DOMContentLoaded', function () {
+			bootHomePdfGallery();
+			bootHomeDashboardCarousel();
+		}, { once: true });
 	} else {
 		bootHomePdfGallery();
+		bootHomeDashboardCarousel();
 	}
 })();

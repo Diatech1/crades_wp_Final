@@ -1,8 +1,13 @@
 (function () {
 	'use strict';
 
-	var hubState = window.cradesDashboardHub || {};
-	var palette = ['#044bad', '#3a7fd4', '#b8943e', '#032d6b', '#0f766e', '#dc2626'];
+	var chartInstances = {};
+	var preferredCharts = {
+		'commerce-exterieur': 'trade-evolution',
+		'commerce-interieur': 'ihpc-desagrege',
+		'industrie': 'industry-ippi',
+		'pme-pmi': 'pme-immatriculations'
+	};
 
 	function sanitizeText(value) {
 		if (value === null || typeof value === 'undefined') {
@@ -10,6 +15,10 @@
 		}
 
 		return String(value).trim();
+	}
+
+	function cloneChartConfig(value) {
+		return JSON.parse(JSON.stringify(value));
 	}
 
 	function coerceNumber(value) {
@@ -28,214 +37,432 @@
 			}
 
 			var parsed = window.parseFloat(normalized);
-
 			return window.isFinite(parsed) ? parsed : null;
 		}
 
 		return null;
 	}
 
-	function looksTemporal(value) {
-		var text = sanitizeText(value);
+	function mergeObjects(base, extension) {
+		var output = cloneChartConfig(base || {});
+		var source = extension || {};
 
-		if (!text) {
-			return false;
-		}
+		Object.keys(source).forEach(function (key) {
+			var incoming = source[key];
+			var current = output[key];
 
-		return (
-			/^\d{4}$/.test(text) ||
-			/^\d{4}-\d{2}$/.test(text) ||
-			/^\d{4}-\d{2}-\d{2}/.test(text) ||
-			/^\d{4}\/\d{2}$/.test(text)
-		);
-	}
-
-	function getTableEntries(payload) {
-		if (!payload || !payload.data || !payload.data.tables) {
-			return [];
-		}
-
-		return Object.keys(payload.data.tables).map(function (key) {
-			return {
-				key: key,
-				table: payload.data.tables[key]
-			};
-		});
-	}
-
-	function getNumericColumns(table) {
-		if (!table || !Array.isArray(table.columns)) {
-			return [];
-		}
-
-		return table.columns.filter(function (column) {
-			if (!column || !column.key || column.key === '_row') {
-				return false;
-			}
-
-			if (column.type === 'number') {
-				return true;
-			}
-
-			return Array.isArray(table.rows) && table.rows.some(function (row) {
-				return coerceNumber(row[column.key]) !== null;
-			});
-		});
-	}
-
-	function getLabelColumn(table, numericColumns) {
-		var numericKeys = numericColumns.map(function (column) {
-			return column.key;
-		});
-
-		if (!table || !Array.isArray(table.columns)) {
-			return null;
-		}
-
-		for (var index = 0; index < table.columns.length; index += 1) {
-			var column = table.columns[index];
-
-			if (!column || column.key === '_row') {
-				continue;
-			}
-
-			if (numericKeys.indexOf(column.key) !== -1) {
-				continue;
-			}
-
-			return column;
-		}
-
-		return null;
-	}
-
-	function buildCandidates(payload) {
-		var candidates = [];
-
-		getTableEntries(payload).forEach(function (entry) {
-			var table = entry.table;
-			var numericColumns = getNumericColumns(table);
-			var labelColumn = getLabelColumn(table, numericColumns);
-
-			if (!table || !Array.isArray(table.rows) || table.rows.length < 2 || !numericColumns.length) {
+			if (
+				incoming &&
+				typeof incoming === 'object' &&
+				!Array.isArray(incoming) &&
+				current &&
+				typeof current === 'object' &&
+				!Array.isArray(current)
+			) {
+				output[key] = mergeObjects(current, incoming);
 				return;
 			}
 
-			var chartColumns = numericColumns.slice(0, 3);
-			var labels = table.rows.map(function (row, index) {
-				var labelValue = labelColumn ? sanitizeText(row[labelColumn.key]) : '';
-
-				return labelValue || ('Ligne ' + (index + 1));
-			});
-			var temporal = labels.some(looksTemporal);
-
-			candidates.push({
-				type: temporal ? 'line' : 'bar',
-				score: labels.length + chartColumns.length,
-				labels: labels,
-				datasets: chartColumns.map(function (column, columnIndex) {
-					return {
-						label: sanitizeText(column.label) || ('Serie ' + (columnIndex + 1)),
-						data: table.rows.map(function (row) {
-							var numericValue = coerceNumber(row[column.key]);
-							return numericValue === null ? 0 : numericValue;
-						}),
-						borderColor: palette[columnIndex % palette.length],
-						backgroundColor: palette[columnIndex % palette.length] + '24',
-						borderWidth: 2,
-						tension: temporal ? 0.35 : 0.14,
-						fill: temporal && 0 === columnIndex,
-						pointRadius: temporal ? 2 : 0,
-						maxBarThickness: 32
-					};
-				})
-			});
+			output[key] = incoming;
 		});
 
-		candidates.sort(function (left, right) {
-			return right.score - left.score;
-		});
-
-		return candidates;
+		return output;
 	}
 
-	function renderPreview(canvas, payload) {
-		var candidates = buildCandidates(payload);
-		var candidate = candidates[0];
+	function showChartState(card, state, message) {
+		var loading = card.querySelector('[data-chart-loading]');
+		var empty = card.querySelector('[data-chart-empty]');
+		var error = card.querySelector('[data-chart-error]');
+		var canvas = card.querySelector('[data-chart-canvas]');
+		var emptyCopy = card.querySelector('[data-chart-empty-copy]');
+		var errorCopy = card.querySelector('[data-chart-error-copy]');
 
-		if (!candidate || !window.Chart) {
-			return false;
+		if (loading) {
+			loading.classList.add('hidden');
 		}
 
-		new window.Chart(canvas.getContext('2d'), {
-			type: candidate.type,
-			data: {
-				labels: candidate.labels,
-				datasets: candidate.datasets
+		if (empty) {
+			empty.classList.add('hidden');
+		}
+
+		if (error) {
+			error.classList.add('hidden');
+		}
+
+		if (canvas) {
+			canvas.classList.add('hidden');
+		}
+
+		if (state === 'empty' && empty) {
+			if (emptyCopy && message) {
+				emptyCopy.textContent = message;
+			}
+
+			empty.classList.remove('hidden');
+		}
+
+		if (state === 'error' && error) {
+			if (errorCopy && message) {
+				errorCopy.textContent = message;
+			}
+
+			error.classList.remove('hidden');
+		}
+
+		if (state === 'ready' && canvas) {
+			canvas.classList.remove('hidden');
+		}
+	}
+
+	function destroyChart(chartId) {
+		if (chartInstances[chartId]) {
+			chartInstances[chartId].destroy();
+			delete chartInstances[chartId];
+		}
+	}
+
+	function buildChartConfigFromViewModel(chart) {
+		var baseOptions = {
+			responsive: true,
+			maintainAspectRatio: false,
+			interaction: {
+				mode: 'index',
+				intersect: false
 			},
-			options: {
-				responsive: true,
-				maintainAspectRatio: false,
-				animation: false,
-				plugins: {
-					legend: {
-						display: true,
-						position: 'bottom',
-						labels: {
-							boxWidth: 10,
-							boxHeight: 10,
-							usePointStyle: true,
-							pointStyle: 'circle',
-							padding: 10,
-							color: '#5f6f86',
-							font: {
-								size: 10,
-								family: 'Montserrat'
-							}
+			plugins: {
+				legend: {
+					display: true,
+					position: 'top',
+					labels: {
+						color: '#334155',
+						boxWidth: 12,
+						boxHeight: 12,
+						font: {
+							family: 'Montserrat',
+							size: 12,
+							weight: '600'
 						}
-					},
-					tooltip: {
-						enabled: false
 					}
 				},
-				scales: candidate.type === 'doughnut' ? {} : {
-					x: {
-						grid: {
-							display: false
-						},
-						ticks: {
-							color: '#7b8ca5',
-							autoSkip: true,
-							maxRotation: 0,
-							font: {
-								size: 10,
-								family: 'Montserrat'
-							}
-						}
+				tooltip: {
+					backgroundColor: '#032d6b',
+					padding: 12,
+					titleFont: {
+						family: 'Montserrat',
+						size: 13,
+						weight: '700'
 					},
-					y: {
-						beginAtZero: candidate.type !== 'line',
-						grid: {
-							color: '#dbe6f5',
-							drawBorder: false
-						},
-						border: {
-							display: false
-						},
-						ticks: {
-							color: '#7b8ca5',
-							maxTicksLimit: 4,
-							font: {
-								size: 10,
-								family: 'Montserrat'
-							}
+					bodyFont: {
+						family: 'Montserrat',
+						size: 12
+					}
+				}
+			},
+			scales: {
+				x: {
+					grid: {
+						display: false
+					},
+					ticks: {
+						color: '#64748b',
+						font: {
+							family: 'Montserrat',
+							size: 11
+						}
+					}
+				},
+				y: {
+					beginAtZero: true,
+					grid: {
+						color: 'rgba(148, 163, 184, 0.16)'
+					},
+					ticks: {
+						color: '#64748b',
+						font: {
+							family: 'Montserrat',
+							size: 11
 						}
 					}
 				}
 			}
-		});
+		};
 
-		return true;
+		if (chart.type === 'doughnut' || chart.type === 'pie') {
+			delete baseOptions.scales;
+		}
+
+		if (chart.type === 'radar') {
+			baseOptions.scales = {
+				r: {
+					beginAtZero: true,
+					ticks: {
+						color: '#64748b',
+						backdropColor: 'transparent',
+						font: {
+							family: 'Montserrat',
+							size: 10
+						}
+					},
+					pointLabels: {
+						color: '#64748b',
+						font: {
+							family: 'Montserrat',
+							size: 10
+						}
+					},
+					grid: {
+						color: '#e2e8f0'
+					}
+				}
+			};
+		}
+
+		return {
+			type: chart.type || 'bar',
+			data: chart.data || { labels: [], datasets: [] },
+			options: mergeObjects(baseOptions, chart.options || {})
+		};
+	}
+
+	function normalizeCommerceExterieurChart(chart) {
+		var nextChart = cloneChartConfig(chart);
+
+		if (nextChart.id === 'trade-evolution') {
+			nextChart.title = 'Évolution du commerce (Mds FCFA)';
+			nextChart.description = 'Exportations et importations 2016-2025.';
+			nextChart.period = '2016-2025';
+			nextChart.source = 'Source : ANSD';
+		}
+
+		return nextChart;
+	}
+
+	function normalizeCommerceInterieurChart(chart) {
+		var nextChart = cloneChartConfig(chart);
+
+		if (nextChart.id === 'ihpc-desagrege') {
+			nextChart.title = 'IHPC désagrégé — variations mensuelles (%)';
+			nextChart.description = '10 dernières périodes · cliquer pour masquer / afficher';
+			nextChart.period = '10 dernières périodes';
+			nextChart.source = 'Source: ANSD — IHPC COICOP. Var. = (Indice[t] / Indice[t-1] - 1) × 100';
+			nextChart.options = mergeObjects(nextChart.options || {}, {
+				interaction: {
+					mode: 'nearest',
+					intersect: true
+				},
+				plugins: {
+					legend: {
+						display: false
+					}
+				},
+				scales: {
+					y: {
+						title: {
+							display: true,
+							text: 'Var. mensuelle (%)',
+							color: '#94a3b8',
+							font: {
+								family: 'Montserrat',
+								size: 9
+							}
+						},
+						ticks: {
+							callback: function (value) {
+								var numeric = coerceNumber(value);
+
+								if (numeric === null) {
+									return sanitizeText(value);
+								}
+
+								return (numeric > 0 ? '+' : '') + numeric.toFixed(1) + '%';
+							}
+						}
+					},
+					x: {
+						ticks: {
+							maxRotation: 45,
+							minRotation: 45
+						}
+					}
+				}
+			});
+		}
+
+		return nextChart;
+	}
+
+	function normalizeIndustryChart(chart) {
+		var nextChart = cloneChartConfig(chart);
+
+		if (nextChart.id === 'industry-ippi') {
+			nextChart.title = 'Indice des Prix à la Production (IPPI)';
+			nextChart.description = "Lecture sur les 24 derniers mois pour l'ensemble.";
+			nextChart.period = '24 derniers mois';
+			nextChart.source = 'Source : ANSD - IPPI mensuel (Ensemble hors égrenage coton)';
+			nextChart.options = mergeObjects(nextChart.options || {}, {
+				interaction: {
+					mode: 'index',
+					intersect: false
+				},
+				plugins: {
+					legend: {
+						display: false
+					},
+					tooltip: {
+						callbacks: {
+							label: function (context) {
+								return 'IPPI: ' + Number(context.parsed.y).toFixed(1);
+							}
+						}
+					}
+				},
+				scales: {
+					y: {
+						beginAtZero: false,
+						grid: {
+							color: '#f1f5f9'
+						},
+						ticks: {
+							font: {
+								size: 10
+							}
+						}
+					},
+					x: {
+						ticks: {
+							font: {
+								size: 9
+							},
+							maxRotation: 45,
+							minRotation: 45,
+							autoSkip: true,
+							maxTicksLimit: 12
+						}
+					}
+				}
+			});
+		}
+
+		return nextChart;
+	}
+
+	function normalizePmeChart(chart) {
+		var nextChart = cloneChartConfig(chart);
+
+		if (nextChart.id === 'pme-immatriculations') {
+			nextChart.title = "Immatriculations par secteur d'activité";
+			nextChart.description = 'Entreprises individuelles — 2019–2024';
+			nextChart.period = 'Entreprises individuelles — 2019–2024';
+			nextChart.source = 'Source : ANSD/RNEA — BANIN 2024';
+			nextChart.options = mergeObjects(nextChart.options || {}, {
+				plugins: {
+					legend: {
+						position: 'bottom',
+						labels: {
+							color: '#6b7280',
+							font: {
+								family: 'Montserrat',
+								size: 9
+							},
+							boxWidth: 10,
+							boxHeight: 10,
+							padding: 8
+						}
+					},
+					tooltip: {
+						mode: 'nearest',
+						intersect: true,
+						callbacks: {
+							label: function (context) {
+								var value = context && context.parsed ? context.parsed.y : 0;
+								return ' ' + sanitizeText(context.dataset.label) + ' : ' + Number(value).toLocaleString('fr-FR');
+							}
+						}
+					}
+				},
+				scales: {
+					x: {
+						stacked: true,
+						grid: {
+							display: false
+						},
+						ticks: {
+							color: '#64748b',
+							font: {
+								family: 'Montserrat',
+								size: 11,
+								weight: '700'
+							}
+						}
+					},
+					y: {
+						stacked: true,
+						grid: {
+							color: '#f1f5f9'
+						},
+						ticks: {
+							color: '#64748b',
+							font: {
+								family: 'Montserrat',
+								size: 9
+							},
+							callback: function (value) {
+								return Math.round(Number(value) / 1000) + 'k';
+							}
+						}
+					}
+				}
+			});
+		}
+
+		return nextChart;
+	}
+
+	function normalizeChartForKey(key, chart) {
+		if (!chart) {
+			return null;
+		}
+
+		if (key === 'commerce-exterieur') {
+			return normalizeCommerceExterieurChart(chart);
+		}
+
+		if (key === 'commerce-interieur') {
+			return normalizeCommerceInterieurChart(chart);
+		}
+
+		if (key === 'industrie') {
+			return normalizeIndustryChart(chart);
+		}
+
+		if (key === 'pme-pmi') {
+			return normalizePmeChart(chart);
+		}
+
+		return cloneChartConfig(chart);
+	}
+
+	function getPreferredChart(payload, key, chartId) {
+		var viewModel = payload && payload.data ? payload.data.view_model : null;
+		var charts = viewModel && Array.isArray(viewModel.charts) ? viewModel.charts : [];
+		var preferredId = sanitizeText(chartId) || preferredCharts[key];
+		var chosen = null;
+
+		if (!charts.length) {
+			return null;
+		}
+
+		if (preferredId) {
+			chosen = charts.find(function (chart) {
+				return chart && sanitizeText(chart.id) === preferredId;
+			}) || null;
+		}
+
+		if (!chosen) {
+			chosen = charts[0];
+		}
+
+		return normalizeChartForKey(key, chosen);
 	}
 
 	function fetchPayload(url) {
@@ -256,40 +483,62 @@
 	}
 
 	function boot() {
-		var previews = document.querySelectorAll('[data-dashboard-preview]');
+		var cards = document.querySelectorAll('[data-dashboard-preview-card]');
 
-		if (!previews.length || !window.Chart) {
+		if (!cards.length || !window.Chart) {
 			return;
 		}
 
-		previews.forEach(function (preview) {
-			var url = preview.getAttribute('data-api-url');
-			var canvas = preview.querySelector('[data-dashboard-preview-canvas]');
-			var loading = preview.querySelector('[data-dashboard-preview-loading]');
-			var error = preview.querySelector('[data-dashboard-preview-error]');
+		cards.forEach(function (card) {
+			var preview = card.querySelector('[data-dashboard-preview]');
+			var key = sanitizeText(card.getAttribute('data-dashboard-key'));
+			var chartId = sanitizeText(card.getAttribute('data-chart-id'));
+			var url = preview ? preview.getAttribute('data-api-url') : '';
+			var title = card.querySelector('[data-chart-title]');
+			var description = card.querySelector('[data-chart-description]');
+			var period = card.querySelector('[data-chart-period]');
+			var source = card.querySelector('[data-chart-source-copy]');
+			var canvas = card.querySelector('[data-chart-canvas]');
 
 			if (!url || !canvas) {
 				return;
 			}
 
+			destroyChart(chartId || key);
+
 			fetchPayload(url)
 				.then(function (payload) {
-					if (loading) {
-						loading.classList.add('hidden');
+					var chart = getPreferredChart(payload, key, chartId);
+
+					if (!chart) {
+						showChartState(card, 'empty', 'Aucune configuration de graphique n a ete retournee.');
+						return;
 					}
 
-					if (!renderPreview(canvas, payload) && error) {
-						error.classList.remove('hidden');
+					if (title && sanitizeText(chart.title)) {
+						title.textContent = sanitizeText(chart.title);
 					}
+
+					if (description && sanitizeText(chart.description)) {
+						description.textContent = sanitizeText(chart.description);
+					}
+
+					if (period && sanitizeText(chart.period)) {
+						period.textContent = sanitizeText(chart.period);
+					}
+
+					if (source && sanitizeText(chart.source)) {
+						source.textContent = sanitizeText(chart.source);
+					}
+
+					showChartState(card, 'ready');
+
+					var chartConfig = buildChartConfigFromViewModel(chart);
+					var chartInstance = new window.Chart(canvas.getContext('2d'), chartConfig);
+					chartInstances[chartId || key] = chartInstance;
 				})
 				.catch(function () {
-					if (loading) {
-						loading.classList.add('hidden');
-					}
-
-					if (error) {
-						error.classList.remove('hidden');
-					}
+					showChartState(card, 'error', 'Impossible de charger ce graphique.');
 				});
 		});
 	}

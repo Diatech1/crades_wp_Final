@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Exact Publications page ported from the Hono app.
  *
@@ -11,14 +11,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 get_header();
 
-$taxonomies   = array(
+$taxonomies = array(
 	'Toutes',
 	'Bulletins mensuels',
 	'Bulletins annuels',
 	'Fiches synoptiques',
 	'Études monographiques',
 );
-$publications = array(
+
+$featured_publications = array(
 	array(
 		'title'    => 'Bulletin mensuel - produits de base - Mai 2025',
 		'type'     => 'Bulletin mensuel',
@@ -36,7 +37,8 @@ $publications = array(
 		'href'     => crades_get_theme_asset_uri( 'assets/docs/publications/crades-bulletin-annuel-2025-marches-produits-de-base.pdf' ),
 	),
 );
-$palette      = array(
+
+$palette_by_taxonomy = array(
 	'Bulletins mensuels'    => array(
 		'badge' => 'bg-white/15 text-white',
 		'text'  => 'text-white',
@@ -52,6 +54,10 @@ $palette      = array(
 	'Études monographiques' => array(
 		'badge' => 'bg-white/15 text-white',
 		'text'  => 'text-white',
+	),
+	'default'               => array(
+		'badge' => 'bg-white text-brand-blue',
+		'text'  => 'text-brand-navy',
 	),
 );
 ?>
@@ -85,13 +91,8 @@ $palette      = array(
 					<h2 class="font-display text-xl text-gray-800"><?php esc_html_e( 'Publications', 'crades-theme' ); ?></h2>
 				</div>
 				<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
-					<?php foreach ( $publications as $publication ) : ?>
-						<?php
-						$style = isset( $palette[ $publication['taxonomy'] ] ) ? $palette[ $publication['taxonomy'] ] : array(
-							'badge' => 'bg-white text-brand-blue',
-							'text'  => 'text-brand-navy',
-						);
-						?>
+					<?php foreach ( $featured_publications as $publication ) : ?>
+						<?php $style = isset( $palette_by_taxonomy[ $publication['taxonomy'] ] ) ? $palette_by_taxonomy[ $publication['taxonomy'] ] : $palette_by_taxonomy['default']; ?>
 						<article class="group bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-md transition-shadow" data-publication-card data-taxonomy="<?php echo esc_attr( $publication['taxonomy'] ); ?>">
 							<button type="button" class="relative block w-full aspect-[4/3] overflow-hidden bg-white flex items-center justify-center cursor-pointer" data-pdf-open="<?php echo esc_url( $publication['href'] ); ?>" data-pdf-title="<?php echo esc_attr( $publication['title'] ); ?>">
 								<canvas class="block h-full w-auto max-w-none" data-pdf-thumb data-pdf-url="<?php echo esc_url( $publication['href'] ); ?>" data-pdf-title="<?php echo esc_attr( $publication['title'] ); ?>"></canvas>
@@ -105,11 +106,10 @@ $palette      = array(
 								</div>
 							</button>
 							<div class="p-4">
-								<div class="mb-5" style="border-top: 2px solid #b8943e;"></div>
-								<div>
+								<div class="border-t-2 border-brand-gold pt-3" style="border-top-color:#b8943e;">
 									<h3 class="text-sm font-semibold text-brand-navy line-clamp-2 group-hover:text-brand-blue transition-colors"><?php echo esc_html( $publication['title'] ); ?></h3>
 								</div>
-								<div class="mt-2 space-y-1 min-h-[2.3rem]">
+								<div class="mt-2 space-y-1">
 									<div class="text-[10px] font-semibold uppercase tracking-[0.18em] text-brand-gold"><?php echo esc_html( $publication['type'] ); ?></div>
 									<div class="text-[10px] font-medium uppercase tracking-[0.16em] text-brand-blue opacity-0 select-none"><?php echo esc_html( $publication['taxonomy'] ); ?></div>
 								</div>

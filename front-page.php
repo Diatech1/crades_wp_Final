@@ -25,10 +25,14 @@ $format_billions = static function ( $value ) use ( $format_number ) {
 	$number = (float) $value;
 
 	if ( abs( $number ) >= 1000 ) {
-		$number = $number / 1000;
+		$number /= 1000;
 	}
 
 	return $format_number( $number, 1 );
+};
+
+$format_integer = static function ( $value ) {
+	return number_format( (int) $value, 0, ',', ' ' );
 };
 
 $compact_metric = static function ( $value ) {
@@ -73,6 +77,8 @@ $icai_indicator     = $find_indicator( $industrie_data['indicators'], array( 'IC
 $ippi_indicator     = $find_indicator( $industrie_data['indicators'], array( 'IPPI' ) );
 $cip_indicator      = $find_indicator( $industrie_data['indicators'], array( 'CIP' ) );
 $latest_tucp        = ! empty( $industrie_data['tucpData'] ) ? $format_number( $industrie_data['tucpData'][ count( $industrie_data['tucpData'] ) - 1 ]['value'] ) . ' %' : 'n/a';
+$dashboards_page_url = crades_get_page_url( 'tableaux-de-bord' );
+$publications_page_url = crades_get_page_url( 'publications' );
 
 $dashboards = array(
 	array(
@@ -109,21 +115,64 @@ $dashboards = array(
 	),
 );
 
+$dashboard_previews = array(
+	array(
+		'key'      => 'commerce-exterieur',
+		'title'    => 'Commerce extérieur',
+		'href'     => crades_get_page_url( 'commerce-exterieur' ),
+		'chart_id' => 'trade-evolution',
+		'canvas'   => 'home-dashboard-chart-commerce-exterieur',
+		'api_url'  => rest_url( 'ministere/v1/commerce-exterieur' ),
+	),
+	array(
+		'key'      => 'commerce-interieur',
+		'title'    => 'Commerce intérieur',
+		'href'     => crades_get_page_url( 'commerce-interieur' ),
+		'chart_id' => 'ihpc-desagrege',
+		'canvas'   => 'home-dashboard-chart-commerce-interieur',
+		'api_url'  => rest_url( 'ministere/v1/commerce-interieur' ),
+	),
+	array(
+		'key'      => 'industrie',
+		'title'    => 'Industrie',
+		'href'     => crades_get_page_url( 'industrie' ),
+		'chart_id' => 'industry-ippi',
+		'canvas'   => 'home-dashboard-chart-industrie',
+		'api_url'  => rest_url( 'ministere/v1/industrie' ),
+	),
+	array(
+		'key'      => 'pme-pmi',
+		'title'    => 'PME / PMI',
+		'href'     => crades_get_page_url( 'pme-pmi' ),
+		'chart_id' => 'pme-immatriculations',
+		'canvas'   => 'home-dashboard-chart-pme',
+		'api_url'  => rest_url( 'ministere/v1/pme-pmi' ),
+	),
+);
+
+$home_dashboard_previews = $dashboard_previews;
+$home_dashboard_carousel_slides = $home_dashboard_previews;
+
+foreach ( array_slice( $home_dashboard_previews, 0, 2 ) as $clone_index => $dashboard_clone ) {
+	$dashboard_clone['canvas'] = $dashboard_clone['canvas'] . '-clone-' . (string) ( $clone_index + 1 );
+	$home_dashboard_carousel_slides[] = $dashboard_clone;
+}
+
 $kpis = array(
 	array( 'value' => $format_billions( $overview['totalExports'] ), 'unit' => 'Mds FCFA', 'label' => 'Exportations', 'href' => crades_get_page_url( 'commerce-exterieur' ) ),
 	array( 'value' => $format_billions( $overview['totalImports'] ), 'unit' => 'Mds FCFA', 'label' => 'Importations', 'href' => crades_get_page_url( 'commerce-exterieur' ) ),
 	array( 'value' => $format_billions( $overview['tradeBalance'] ), 'unit' => 'Mds FCFA', 'label' => 'Balance commerciale', 'href' => crades_get_page_url( 'commerce-exterieur' ) ),
-	array( 'value' => str_replace( '.', ',', number_format( $coverage_rate, 1, '.', '' ) ), 'unit' => '%', 'label' => 'Taux de couverture', 'href' => crades_get_page_url( 'commerce-exterieur' ) ),
+	array( 'value' => $format_number( $coverage_rate ), 'unit' => '%', 'label' => 'Taux de couverture', 'href' => crades_get_page_url( 'commerce-exterieur' ) ),
 	array( 'value' => ! empty( $ihpc_indicator['formatted'] ) ? $ihpc_indicator['formatted'] : 'n/a', 'unit' => '', 'label' => 'Indice Prix Consommation', 'href' => crades_get_page_url( 'commerce-interieur' ) ),
-	array( 'value' => $latest_inflation ? str_replace( '.', ',', number_format( (float) $latest_inflation['rate'], 1, '.', '' ) ) . ' %' : 'n/a', 'unit' => '', 'label' => 'Inflation annuelle', 'href' => crades_get_page_url( 'commerce-interieur' ) ),
+	array( 'value' => $latest_inflation ? $format_number( $latest_inflation['rate'] ) . ' %' : 'n/a', 'unit' => '', 'label' => 'Inflation annuelle', 'href' => crades_get_page_url( 'commerce-interieur' ) ),
 	array( 'value' => isset( $pme_data['exportatrices'] ) ? $pme_data['exportatrices'] : 'n/a', 'unit' => '', 'label' => 'Entreprises exportatrices', 'href' => crades_get_page_url( 'pme-pmi' ) ),
-	array( 'value' => ! empty( $commerce_pib['formatted'] ) ? $commerce_pib['formatted'] : 'n/a', 'unit' => '', 'label' => 'Commerce / PIB', 'href' => crades_get_page_url( 'commerce-interieur' ) ),
+	array( 'value' => ! empty( $commerce_pib['formatted'] ) ? $commerce_pib['formatted'] : 'n/a', 'unit' => '', 'label' => 'Commerce/PIB', 'href' => crades_get_page_url( 'commerce-interieur' ) ),
 	array( 'value' => $compact_metric( isset( $ihpi_indicator['value'] ) ? $ihpi_indicator['value'] : null ), 'unit' => '', 'label' => 'IHPI - Production', 'href' => crades_get_page_url( 'industrie' ) ),
 	array( 'value' => $compact_metric( isset( $icai_indicator['value'] ) ? $icai_indicator['value'] : null ), 'unit' => '', 'label' => 'ICAI - Industrie', 'href' => crades_get_page_url( 'industrie' ) ),
 	array( 'value' => $compact_metric( isset( $ippi_indicator['value'] ) ? $ippi_indicator['value'] : null ), 'unit' => '', 'label' => 'IPPI - Prix Production', 'href' => crades_get_page_url( 'industrie' ) ),
 	array( 'value' => $compact_metric( isset( $cip_indicator['value'] ) ? $cip_indicator['value'] : null ), 'unit' => '', 'label' => 'CIP - Compétitivité', 'href' => crades_get_page_url( 'industrie' ) ),
 	array( 'value' => $latest_tucp, 'unit' => '', 'label' => "Taux d'utilisation des capacités", 'href' => crades_get_page_url( 'industrie' ) ),
-	array( 'value' => number_format_i18n( (int) $pme_data['immatriculations'], 0 ), 'unit' => '', 'label' => 'Immatriculations 2024', 'href' => crades_get_page_url( 'pme-pmi' ) ),
+	array( 'value' => $format_integer( $pme_data['immatriculations'] ), 'unit' => '', 'label' => 'Immatriculations 2024', 'href' => crades_get_page_url( 'pme-pmi' ) ),
 	array( 'value' => isset( $pme_data['creditAccess'] ) ? $pme_data['creditAccess'] : 'n/a', 'unit' => '', 'label' => 'Accès au crédit', 'href' => crades_get_page_url( 'pme-pmi' ) ),
 	array( 'value' => isset( $pme_data['croissanceEmploi'] ) ? $pme_data['croissanceEmploi'] : 'n/a', 'unit' => '', 'label' => "Croissance de l'emploi", 'href' => crades_get_page_url( 'pme-pmi' ) ),
 );
@@ -146,16 +195,17 @@ $publications = array(
 		'href'     => crades_get_theme_asset_uri( 'assets/docs/publications/crades-bulletin-annuel-2025-marches-produits-de-base.pdf' ),
 	),
 );
-$palette      = array(
-	'Bulletins mensuels'    => array(
+
+$palette = array(
+	'Bulletins mensuels'   => array(
 		'badge' => 'bg-white/15 text-white',
 		'text'  => 'text-white',
 	),
-	'Bulletins annuels'     => array(
+	'Bulletins annuels'    => array(
 		'badge' => 'bg-white/15 text-white',
 		'text'  => 'text-white',
 	),
-	'Fiches synoptiques'    => array(
+	'Fiches synoptiques'   => array(
 		'badge' => 'bg-white/15 text-white',
 		'text'  => 'text-white',
 	),
@@ -166,7 +216,6 @@ $palette      = array(
 );
 ?>
 <section class="relative overflow-hidden bg-brand-frost">
-	<div class="absolute inset-y-0 right-0 hidden w-1/3 bg-[radial-gradient(circle_at_top_right,rgba(58,127,212,0.16),transparent_48%),radial-gradient(circle_at_bottom_right,rgba(184,148,62,0.14),transparent_42%)] lg:block" aria-hidden="true"></div>
 	<div class="max-w-6xl mx-auto px-4 sm:px-6 py-16 lg:py-24">
 		<div class="max-w-xl">
 			<h1 class="font-display font-bold text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-brand-navy leading-tight">
@@ -176,10 +225,10 @@ $palette      = array(
 				Le CRADES produit et diffuse les statistiques, études et analyses stratégiques sur l'industrie et le commerce du Sénégal.
 			</p>
 			<div class="flex flex-wrap gap-4 mt-10">
-				<a href="<?php echo esc_url( crades_get_page_url( 'commerce-exterieur' ) ); ?>" class="inline-flex items-center text-sm font-medium bg-brand-blue text-white px-5 py-2.5 rounded-lg hover:bg-brand-navy transition-colors shadow-sm">
+				<a href="<?php echo esc_url( $dashboards_page_url ); ?>" class="inline-flex items-center text-sm font-medium bg-brand-blue text-white px-5 py-2.5 rounded-lg hover:bg-brand-navy transition-colors shadow-sm">
 					<?php esc_html_e( 'Explorer les tableaux de bord', 'crades-theme' ); ?>
 				</a>
-				<a href="<?php echo esc_url( crades_get_page_url( 'publications' ) ); ?>" class="inline-flex items-center text-sm font-medium bg-white text-brand-navy px-5 py-2.5 rounded-lg hover:bg-white/80 transition-colors border border-brand-ice shadow-sm">
+				<a href="<?php echo esc_url( $publications_page_url ); ?>" class="inline-flex items-center text-sm font-medium bg-white text-brand-navy px-5 py-2.5 rounded-lg hover:bg-white/80 transition-colors border border-brand-ice shadow-sm">
 					<?php esc_html_e( 'Publications', 'crades-theme' ); ?>
 				</a>
 			</div>
@@ -188,6 +237,19 @@ $palette      = array(
 </section>
 
 <section class="bg-brand-navy border-t border-brand-blue/20 border-b border-brand-blue/20 overflow-hidden">
+	<style>
+		@keyframes cradesKpiMarquee {
+			from { transform: translateX(0); }
+			to { transform: translateX(-50%); }
+		}
+		.crades-kpi-track {
+			width: max-content;
+			animation: cradesKpiMarquee 36s linear infinite;
+		}
+		.crades-kpi-track:hover {
+			animation-play-state: paused;
+		}
+	</style>
 	<div class="crades-kpi-track flex">
 		<?php foreach ( array_merge( $kpis, $kpis ) as $kpi ) : ?>
 			<a href="<?php echo esc_url( $kpi['href'] ); ?>" class="group flex min-w-[220px] sm:min-w-[250px] items-center justify-center border-r border-white/10 px-4 py-4 text-center transition-colors hover:bg-brand-blue/30">
@@ -205,22 +267,47 @@ $palette      = array(
 	</div>
 </section>
 
+<section class="py-14 bg-white border-b border-gray-100">
+	<div class="max-w-6xl mx-auto px-4 sm:px-6">
+		<div class="grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)] lg:items-start">
+			<div>
+				<p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-gold"><?php esc_html_e( 'À propos', 'crades-theme' ); ?></p>
+				<h2 class="mt-3 font-display text-2xl lg:text-[2rem] leading-tight text-brand-navy"><?php esc_html_e( 'Notre Mission', 'crades-theme' ); ?></h2>
+			</div>
+			<div class="max-w-3xl">
+				<p class="text-sm lg:text-[15px] leading-7 text-gray-500">
+					<?php esc_html_e( "Centre de Recherche et d'Analyse des Échanges et Statistiques, structure technique spécialisée dans la recherche, le traitement et l'analyse des informations commerciales et industrielles.", 'crades-theme' ); ?>
+				</p>
+				<a href="<?php echo esc_url( crades_get_page_url( 'a-propos' ) ); ?>" class="inline-flex items-center gap-2 mt-5 text-sm font-medium text-brand-blue hover:text-brand-navy transition-colors">
+					<?php esc_html_e( 'En savoir plus', 'crades-theme' ); ?>
+					<i class="fas fa-arrow-right text-[11px]" aria-hidden="true"></i>
+				</a>
+			</div>
+		</div>
+	</div>
+</section>
+
 <section class="py-16 bg-white">
 	<div class="max-w-6xl mx-auto px-4 sm:px-6">
 		<div class="flex items-center justify-between mb-8">
 			<h2 class="font-display text-xl text-gray-800"><?php esc_html_e( 'Tableaux de bord sectoriels', 'crades-theme' ); ?></h2>
+			<a href="<?php echo esc_url( $dashboards_page_url ); ?>" class="text-xs text-brand-blue font-medium hover:underline"><?php esc_html_e( 'Voir tous', 'crades-theme' ); ?> &rarr;</a>
 		</div>
-		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-			<?php foreach ( $dashboards as $dashboard ) : ?>
-				<a href="<?php echo esc_url( $dashboard['href'] ); ?>" class="group block bg-white rounded-xl border border-gray-100 p-6 hover:shadow-lg hover:border-brand-ice transition-all">
-					<div class="w-11 h-11 rounded-lg <?php echo esc_attr( $dashboard['icon_bg'] ); ?> flex items-center justify-center mb-4">
-						<i class="fas <?php echo esc_attr( $dashboard['icon'] ); ?> <?php echo esc_attr( $dashboard['icon_text'] ); ?>" aria-hidden="true"></i>
-					</div>
-					<h3 class="text-sm font-semibold text-gray-800 group-hover:text-brand-blue transition-colors"><?php echo esc_html( $dashboard['title'] ); ?></h3>
-					<p class="text-xs text-gray-400 mt-2 line-clamp-2"><?php echo esc_html( $dashboard['desc'] ); ?></p>
-					<span class="inline-block mt-4 text-xs text-brand-blue font-medium group-hover:underline"><?php esc_html_e( 'Explorer', 'crades-theme' ); ?> &rarr;</span>
-				</a>
-			<?php endforeach; ?>
+		<div class="relative" data-home-dashboard-carousel data-carousel-original-count="<?php echo esc_attr( (string) count( $home_dashboard_previews ) ); ?>" data-carousel-clone-count="2">
+			<style>
+				.crades-home-dashboard-track::-webkit-scrollbar {
+					display: none;
+				}
+			</style>
+			<div class="overflow-hidden">
+				<div class="crades-home-dashboard-track flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-2" style="-ms-overflow-style:none;scrollbar-width:none;" data-dashboard-carousel-track>
+					<?php foreach ( $home_dashboard_carousel_slides as $dashboard ) : ?>
+						<div class="snap-start shrink-0 w-full md:w-[calc(50%-12px)]" data-dashboard-carousel-slide>
+							<?php get_template_part( 'template-parts/dashboard/preview-card', null, array( 'dashboard' => $dashboard ) ); ?>
+						</div>
+					<?php endforeach; ?>
+				</div>
+			</div>
 		</div>
 	</div>
 </section>
@@ -229,7 +316,7 @@ $palette      = array(
 	<div class="max-w-6xl mx-auto px-4 sm:px-6">
 		<div class="flex items-center justify-between mb-10">
 			<h2 class="font-display text-xl text-gray-800"><?php esc_html_e( 'Dernières publications', 'crades-theme' ); ?></h2>
-			<a href="<?php echo esc_url( crades_get_page_url( 'publications' ) ); ?>" class="text-xs text-brand-blue font-medium hover:underline"><?php esc_html_e( 'Voir toutes', 'crades-theme' ); ?> &rarr;</a>
+			<a href="<?php echo esc_url( $publications_page_url ); ?>" class="text-xs text-brand-blue font-medium hover:underline"><?php esc_html_e( 'Voir toutes', 'crades-theme' ); ?> &rarr;</a>
 		</div>
 		<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
 			<?php foreach ( $publications as $publication ) : ?>
@@ -252,7 +339,7 @@ $palette      = array(
 						</div>
 					</button>
 					<div class="p-4">
-						<div class="border-t-2 border-brand-gold pt-3">
+						<div class="border-t-2 border-brand-gold pt-3" style="border-top-color:#b8943e;">
 							<h3 class="text-sm font-semibold text-brand-navy line-clamp-2 group-hover:text-brand-blue transition-colors"><?php echo esc_html( $publication['title'] ); ?></h3>
 						</div>
 						<div class="mt-2 space-y-1">
@@ -287,16 +374,5 @@ $palette      = array(
 	</div>
 </section>
 
-<section class="py-16 bg-brand-frost/50 border-t border-gray-100">
-	<div class="max-w-6xl mx-auto px-4 sm:px-6">
-		<div class="max-w-3xl mx-auto text-center">
-			<h2 class="font-display text-xl text-gray-800 mb-4"><?php esc_html_e( 'À propos du CRADES', 'crades-theme' ); ?></h2>
-			<p class="text-sm text-gray-500 leading-relaxed">
-				<?php esc_html_e( "Le CRADES est une institution rattachée au Ministère de l'Industrie et du Commerce du Sénégal. Il est chargé de la production, de l'analyse et de la diffusion des données statistiques sur le commerce extérieur, le commerce intérieur, l'industrie et les PME/PMI.", 'crades-theme' ); ?>
-			</p>
-			<a href="<?php echo esc_url( crades_get_page_url( 'a-propos' ) ); ?>" class="inline-block mt-6 text-sm text-brand-blue font-medium hover:underline"><?php esc_html_e( 'En savoir plus', 'crades-theme' ); ?> &rarr;</a>
-		</div>
-	</div>
-</section>
 <?php
 get_footer();

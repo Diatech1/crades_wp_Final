@@ -13,28 +13,60 @@ get_header();
 
 $dashboards = array(
 	array(
-		'title'    => __( 'Commerce extérieur', 'crades-theme' ),
+		'key'      => 'commerce-exterieur',
+		'title'    => 'Commerce extérieur',
 		'href'     => crades_get_page_url( 'commerce-exterieur' ),
+		'chart_id' => 'trade-evolution',
 		'canvas'   => 'dashboard-chart-commerce-exterieur',
 		'api_url'  => rest_url( 'ministere/v1/commerce-exterieur' ),
+		'chart'    => array(
+			'title'       => 'Évolution du commerce (Mds FCFA)',
+			'description' => 'Exportations et importations 2016-2025.',
+			'period'      => '2016-2025',
+			'source'      => 'Source : ANSD',
+		),
 	),
 	array(
-		'title'    => __( 'Commerce intérieur', 'crades-theme' ),
+		'key'      => 'commerce-interieur',
+		'title'    => 'Commerce intérieur',
 		'href'     => crades_get_page_url( 'commerce-interieur' ),
+		'chart_id' => 'ihpc-desagrege',
 		'canvas'   => 'dashboard-chart-commerce-interieur',
 		'api_url'  => rest_url( 'ministere/v1/commerce-interieur' ),
+		'chart'    => array(
+			'title'       => 'IHPC désagrégé — variations mensuelles (%)',
+			'description' => '10 dernières périodes · cliquer pour masquer / afficher',
+			'period'      => '10 dernières périodes',
+			'source'      => 'Source: ANSD — IHPC COICOP. Var. = (Indice[t] / Indice[t-1] - 1) × 100',
+		),
 	),
 	array(
-		'title'    => __( 'Industrie', 'crades-theme' ),
+		'key'      => 'industrie',
+		'title'    => 'Industrie',
 		'href'     => crades_get_page_url( 'industrie' ),
+		'chart_id' => 'industry-ippi',
 		'canvas'   => 'dashboard-chart-industrie',
 		'api_url'  => rest_url( 'ministere/v1/industrie' ),
+		'chart'    => array(
+			'title'       => 'Indice des Prix à la Production (IPPI)',
+			'description' => "Lecture sur les 24 derniers mois pour l'ensemble.",
+			'period'      => '24 derniers mois',
+			'source'      => 'Source : ANSD - IPPI mensuel (Ensemble hors égrenage coton)',
+		),
 	),
 	array(
-		'title'    => __( 'PME / PMI', 'crades-theme' ),
+		'key'      => 'pme-pmi',
+		'title'    => 'PME / PMI',
 		'href'     => crades_get_page_url( 'pme-pmi' ),
+		'chart_id' => 'pme-immatriculations',
 		'canvas'   => 'dashboard-chart-pme',
 		'api_url'  => rest_url( 'ministere/v1/pme-pmi' ),
+		'chart'    => array(
+			'title'       => "Immatriculations par secteur d'activité",
+			'description' => 'Entreprises individuelles — 2019–2024',
+			'period'      => 'Entreprises individuelles — 2019–2024',
+			'source'      => 'Source : ANSD/RNEA — BANIN 2024',
+		),
 	),
 );
 ?>
@@ -47,32 +79,16 @@ $dashboards = array(
 		</nav>
 		<h1 class="font-display text-2xl lg:text-3xl text-white"><?php esc_html_e( 'Tableaux de bord sectoriels', 'crades-theme' ); ?></h1>
 		<p class="text-gray-400 mt-2 max-w-2xl text-sm leading-relaxed">
-			<?php esc_html_e( 'Chaque carte utilise maintenant un vrai graphique Chart.js chargé depuis l’API WordPress avant d’ouvrir le tableau de bord complet.', 'crades-theme' ); ?>
+			<?php esc_html_e( 'Chaque carte reprend le graphique principal de son dashboard WordPress et ouvre la page complète au clic.', 'crades-theme' ); ?>
 		</p>
 	</div>
 </section>
 
 <section class="py-14 bg-gray-50">
-	<div class="max-w-7xl mx-auto px-4 sm:px-6">
-		<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+	<div class="max-w-6xl mx-auto px-4 sm:px-6">
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-7">
 			<?php foreach ( $dashboards as $dashboard ) : ?>
-				<div class="w-full md:max-w-[75%] mx-auto">
-					<h2 class="mb-2 text-sm text-center font-semibold text-gray-800"><?php echo esc_html( $dashboard['title'] ); ?></h2>
-					<a href="<?php echo esc_url( $dashboard['href'] ); ?>" class="group block bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg hover:border-brand-ice transition-all">
-						<div class="aspect-[16/8.5]">
-							<div class="h-full w-full rounded-lg bg-white p-2">
-								<div class="relative h-full w-full rounded-lg bg-white" data-dashboard-preview data-api-url="<?php echo esc_url( $dashboard['api_url'] ); ?>">
-									<div class="absolute inset-0 flex items-center justify-center text-xs text-gray-400" data-dashboard-preview-loading><?php esc_html_e( 'Chargement du graphique...', 'crades-theme' ); ?></div>
-									<div class="hidden absolute inset-0 flex items-center justify-center text-xs text-gray-400" data-dashboard-preview-error><?php esc_html_e( 'Aperçu indisponible', 'crades-theme' ); ?></div>
-									<canvas id="<?php echo esc_attr( $dashboard['canvas'] ); ?>" class="w-full h-full" data-dashboard-preview-canvas></canvas>
-								</div>
-							</div>
-						</div>
-						<div class="p-3">
-							<div class="mt-3 text-[13px] font-medium text-brand-blue group-hover:underline"><?php esc_html_e( 'Ouvrir le tableau de bord', 'crades-theme' ); ?> &rarr;</div>
-						</div>
-					</a>
-				</div>
+				<?php get_template_part( 'template-parts/dashboard/preview-card', null, array( 'dashboard' => $dashboard ) ); ?>
 			<?php endforeach; ?>
 		</div>
 	</div>
